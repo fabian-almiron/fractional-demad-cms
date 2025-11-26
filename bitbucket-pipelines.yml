@@ -1,0 +1,31 @@
+image: node:20
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Build & Test
+          caches:
+            - node
+          script:
+            - npm ci
+            - npm run build
+          artifacts:
+            - dist/**
+            - build/**
+
+      - step:
+          name: Deploy to Railway
+          deployment: production
+          script:
+            # Install Railway CLI
+            - npm install -g @railway/cli
+            # Deploy to Railway using the token
+            - railway up --service $RAILWAY_SERVICE_ID
+          services:
+            - docker
+
+definitions:
+  caches:
+    node: node_modules
+
